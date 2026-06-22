@@ -15,7 +15,7 @@ import OriginCore from './OriginCore'
 
 gsap.registerPlugin(useGSAP)
 
-const HERO_CARDS = [
+const HERO_CARDS: { rot: number; bg: string; label: string; tag: string; dark?: boolean }[] = [
   { rot: -14, bg: 'linear-gradient(160deg,#2a2c6b,#533afd)', label: 'Local SEO',            tag: 'SEO'    },
   { rot:   0, bg: 'linear-gradient(165deg,#0d253d,#2a2c6b)', label: 'Everyday businesses',  tag: 'WEB'    },
   { rot:  14, bg: 'linear-gradient(160deg,#ea2261,#f96bee)', label: 'Socials kit',           tag: 'SOCIAL' },
