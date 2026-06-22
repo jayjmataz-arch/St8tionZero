@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>St8tionZero — Launch from zero</title>
+
+<!-- St8tionZero — complete single-file site (landing + about merged into one
+     scrolling page). Brand tokens, animation system, and all React/JSX
+     components inlined below. React + Babel + Phosphor load from CDN. -->
+
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+/* ===== colors_and_type.css ===== */
+/* ============================================================================
+   St8tionZero — Design Tokens: Colors & Type
+   ----------------------------------------------------------------------------
+   The brand opens with a gradient-mesh band (cream → sherbet → lavender →
+   indigo → ruby) over a white canvas. Indigo is the single CTA colour; deep
+   navy is the universal text colour. Display type is THIN (weight 300) with
+   negative tracking — that thin air is the typographic signature.
+
+   FONT NOTE: The brand's licensed display face is Söhne (Klim Type Foundry).
+   It is proprietary, so this file substitutes **Inter** (weight 300, ss01)
+   as the canonical open-source analogue. Swap the @font-face / family in one
+   place if/when Söhne web fonts are provided. See README → Typography.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ----------------------------------------------------------------------
+     BRAND & ACCENT
+     Indigo is the only filled-CTA colour. Ruby / magenta / lemon live ONLY
+     inside the gradient mesh and as tiny product-UI accent dots — never
+     buttons, never body text.
+     ---------------------------------------------------------------------- */
+  --primary:                 #533afd;  /* signature CTA / link emphasis  */
+  --primary-deep:            #4434d4;  /* gradient mid-stop, warm press   */
+  --primary-press:           #2e2b8c;  /* pressed-state lift              */
+  --primary-soft:            #665efd;  /* product-UI accent, chart line   */
+  --primary-bg-subdued:      #b9b9f9;  /* pale indigo soft-tag fill       */
+  --brand-dark-900:          #1c1e54;  /* featured tier / dark chrome     */
+
+  --ruby:                    #ea2261;  /* gradient + chart accent only    */
+  --magenta:                 #f96bee;  /* bright pink gradient stop       */
+  --lemon:                   #9b6829;  /* warm sherbet gradient stop      */
+
+  /* ----------------------------------------------------------------------
+     SURFACE
+     ---------------------------------------------------------------------- */
+  --canvas:                  #ffffff;  /* default page background         */
+  --canvas-soft:             #f6f9fc;  /* cool feature band under hero    */
+  --canvas-cream:            #f5e9d4;  /* warm interlude band             */
+  --hairline:                #e3e8ee;  /* 1px card / table borders        */
+  --hairline-input:          #a8c3de;  /* cooler hairline on form inputs  */
+
+  /* ----------------------------------------------------------------------
+     TEXT
+     ---------------------------------------------------------------------- */
+  --ink:                     #0d253d;  /* default body — deep navy        */
+  --ink-secondary:           #273951;  /* secondary text on white         */
+  --ink-mute:                #64748d;  /* helper, caption, table label    */
+  --ink-mute-2:              #61718a;  /* nav-equivalent mute             */
+  --on-primary:              #ffffff;  /* text on indigo / navy surfaces  */
+
+  /* ----------------------------------------------------------------------
+     TYPE FAMILIES
+     ---------------------------------------------------------------------- */
+  --font-display: 'Inter', 'SF Pro Display', system-ui, sans-serif; /* Söhne substitute */
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    'SF Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* OpenType — ss01 globally (single-story a, brand char variants);
+     tnum applied per-element on money / numeric cells. */
+  --feat-ss01: 'ss01' 1; /* @kind other */
+  --feat-tnum: 'tnum' 1, 'ss01' 1; /* @kind other */
+
+  /* ----------------------------------------------------------------------
+     TYPE SCALE  →  size / weight / line-height / letter-spacing
+     Thin weight (300) on every display tier. Negative tracking scales
+     from -1.4px @ 56px down to -0.2px @ 20px.
+     ---------------------------------------------------------------------- */
+  --display-xxl: 300 56px/1.03 var(--font-display);   --ls-display-xxl: -1.4px;  /* @kind other */
+  --display-xl:  300 48px/1.15 var(--font-display);   --ls-display-xl:  -0.96px; /* @kind other */
+  --display-lg:  300 32px/1.1  var(--font-display);   --ls-display-lg:  -0.64px; /* @kind other */
+  --display-md:  300 26px/1.12 var(--font-display);   --ls-display-md:  -0.26px; /* @kind other */
+  --heading-lg:  300 22px/1.1  var(--font-display);   --ls-heading-lg:  -0.22px; /* @kind other */
+  --heading-md:  300 20px/1.4  var(--font-display);   --ls-heading-md:  -0.2px;  /* @kind other */
+  --heading-sm:  300 18px/1.4  var(--font-display);   --ls-heading-sm:  0;        /* @kind other */
+  --body-lg:     300 16px/1.4  var(--font-body);      --ls-body-lg:     0;        /* @kind other */
+  --body-md:     300 15px/1.4  var(--font-body);      --ls-body-md:     0;        /* @kind other */
+  --body-tab:    300 14px/1.4  var(--font-body);      --ls-body-tab:    -0.42px;  /* @kind other */
+  --button-md:   400 16px/1.0  var(--font-display);   --ls-button-md:   0;        /* @kind other */
+  --button-sm:   400 14px/1.0  var(--font-display);   --ls-button-sm:   0;        /* @kind other */
+  --caption:     400 13px/1.4  var(--font-body);      --ls-caption:     -0.39px;  /* @kind other */
+  --micro:       300 11px/1.4  var(--font-body);      --ls-micro:       0;        /* @kind other */
+  --micro-cap:   400 10px/1.15 var(--font-display);   --ls-micro-cap:   0.1px;    /* @kind other */
+
+  /* ----------------------------------------------------------------------
+     SPACING  (8px base, with 2/4/12 sub-tokens)
+     ---------------------------------------------------------------------- */
+  --space-xxs: 2px;
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  12px;
+  --space-lg:  16px;
+  --space-xl:  24px;
+  --space-xxl: 32px;
+  --space-huge:64px;
+
+  /* ----------------------------------------------------------------------
+     RADIUS
+     ---------------------------------------------------------------------- */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-pill: 9999px;
+
+  /* ----------------------------------------------------------------------
+     ELEVATION  — literal shadows stay subtle; the gradient mesh is the
+     brand's primary depth medium.
+     ---------------------------------------------------------------------- */
+  --shadow-1: rgba(0,55,112,0.08) 0 1px 3px;
+  --shadow-2: rgba(0,55,112,0.08) 0 8px 24px, rgba(0,55,112,0.04) 0 2px 6px;
+
+  /* Signature gradient-mesh wash (CSS approximation of the SVG mesh) */
+  --mesh: radial-gradient(60% 120% at 8% 30%,  #f5e9d4 0%, rgba(245,233,212,0) 55%),
+          radial-gradient(50% 120% at 30% 20%, #f9b97a 0%, rgba(249,185,122,0) 55%),
+          radial-gradient(55% 130% at 52% 40%, #c9b8f5 0%, rgba(201,184,245,0) 55%),
+          radial-gradient(60% 130% at 72% 25%, #533afd 0%, rgba(83,58,253,0) 55%),
+          radial-gradient(55% 130% at 92% 45%, #ea2261 0%, rgba(234,34,97,0) 55%),
+          radial-gradient(50% 120% at 100% 20%,#f96bee 0%, rgba(249,107,238,0) 55%),
+          var(--canvas);
+}
+
+/* ============================================================================
+   SEMANTIC ELEMENT DEFAULTS
+   Apply .sz-scope (or use on <body>) to inherit the brand's base type.
+   ========================================================================== */
+.sz-scope,
+body.sz-scope {
+  font: var(--body-md);
+  letter-spacing: var(--ls-body-md);
+  color: var(--ink);
+  background: var(--canvas);
+  font-feature-settings: var(--feat-ss01);   /* ss01 globally */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.sz-scope h1, .sz-display-xxl { font: var(--display-xxl); letter-spacing: var(--ls-display-xxl); color: var(--ink); }
+.sz-scope h2, .sz-display-xl  { font: var(--display-xl);  letter-spacing: var(--ls-display-xl);  color: var(--ink); }
+.sz-scope h3, .sz-display-lg  { font: var(--display-lg);  letter-spacing: var(--ls-display-lg);  color: var(--ink); }
+.sz-display-md                { font: var(--display-md);  letter-spacing: var(--ls-display-md);  color: var(--ink); }
+.sz-scope h4, .sz-heading-lg  { font: var(--heading-lg);  letter-spacing: var(--ls-heading-lg);  color: var(--ink); }
+.sz-heading-md                { font: var(--heading-md);  letter-spacing: var(--ls-heading-md);  color: var(--ink); }
+.sz-heading-sm                { font: var(--heading-sm);  letter-spacing: var(--ls-heading-sm);  color: var(--ink); }
+.sz-body-lg                   { font: var(--body-lg);     letter-spacing: var(--ls-body-lg); }
+.sz-body-md, .sz-scope p      { font: var(--body-md);     letter-spacing: var(--ls-body-md); }
+.sz-body-tab                  { font: var(--body-tab);    letter-spacing: var(--ls-body-tab); font-feature-settings: var(--feat-tnum); }
+.sz-caption                   { font: var(--caption);     letter-spacing: var(--ls-caption);  color: var(--ink-mute); }
+.sz-micro                     { font: var(--micro);       letter-spacing: var(--ls-micro);    color: var(--ink-mute); }
+.sz-micro-cap                 { font: var(--micro-cap);   letter-spacing: var(--ls-micro-cap); text-transform: uppercase; color: var(--ink-mute); }
+
+/* Money / numeric helper — always pair with tabular figures */
+.sz-tnum { font-feature-settings: var(--feat-tnum); }
+
+/* ============================================================================
+   COMPONENT PRIMITIVES (foundation classes — UI kit extends these)
+   ========================================================================== */
+
+/* Buttons -------------------------------------------------------------- */
+.sz-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--space-sm);
+  font: var(--button-md); letter-spacing: var(--ls-button-md);
+  padding: var(--space-sm) var(--space-lg);          /* 8px 16px — never smaller */
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: background-color .15s ease, color .15s ease, transform .08s ease, border-color .15s ease;
+}
+.sz-btn--primary   { background: var(--primary); color: var(--on-primary); }
+.sz-btn--primary:hover  { background: var(--primary-deep); }
+.sz-btn--primary:active { background: var(--primary-press); transform: translateY(0.5px); }
+
+.sz-btn--secondary { background: var(--canvas); color: var(--primary); border-color: var(--primary); }
+.sz-btn--secondary:hover  { background: var(--primary-bg-subdued); }
+.sz-btn--secondary:active { transform: translateY(0.5px); }
+
+.sz-btn--on-dark   { background: var(--brand-dark-900); color: var(--on-primary); }
+.sz-btn--on-dark:hover { background: #2a2c6b; }
+
+.sz-btn--sm { font: var(--button-sm); letter-spacing: var(--ls-button-sm); padding: 6px var(--space-md); }
+
+/* Links ---------------------------------------------------------------- */
+.sz-link { color: var(--primary); text-decoration: none; }
+.sz-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Cards ---------------------------------------------------------------- */
+.sz-card {
+  background: var(--canvas); border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg); padding: var(--space-xxl);
+}
+.sz-card--shadow   { box-shadow: var(--shadow-1); }
+.sz-card--cream    { background: var(--canvas-cream); border-color: transparent; color: var(--ink); }
+.sz-card--featured { background: var(--brand-dark-900); border-color: transparent; color: var(--on-primary); }
+.sz-card--mockup   { box-shadow: var(--shadow-2); padding: var(--space-xl); border-radius: var(--radius-lg); }
+
+/* Inputs --------------------------------------------------------------- */
+.sz-input {
+  width: 100%; background: var(--canvas); color: var(--ink);
+  font: var(--body-md); letter-spacing: var(--ls-body-md);
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--hairline-input); border-radius: var(--radius-sm);
+  outline: none; transition: border-color .15s ease, box-shadow .15s ease;
+}
+.sz-input::placeholder { color: var(--ink-mute); }
+.sz-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(83,58,253,0.12); }
+
+/* Tags / pills --------------------------------------------------------- */
+.sz-tag {
+  display: inline-flex; align-items: center; white-space: nowrap;
+  background: var(--primary-bg-subdued); color: var(--primary-deep);
+  font: var(--micro-cap); letter-spacing: var(--ls-micro-cap); text-transform: uppercase;
+  padding: var(--space-xs) var(--space-sm); border-radius: var(--radius-pill);
+}
+
+/* Gradient mesh backdrop ----------------------------------------------- */
+.sz-mesh { background: var(--mesh); }
+
+
+/* ===== anim.css (animation system + responsive) ===== */
+/* ============================================================================
+   St8tionZero — Landing page styles + animation system
+   Built on top of colors_and_type.css. Adds: light/dark theming, keyframes,
+   hover micro-interactions, marquee, floating badges, card fan, accordion.
+   ========================================================================== */
+
+/* ---- Theme tokens. Default = light. [data-theme="dark"] flips surfaces ---- */
+:root {
+  --bg:          #ffffff;
+  --bg-soft:     #f6f9fc;
+  --fg:          #0d253d;
+  --fg-soft:     #273951;
+  --fg-mute:     #64748d;
+  --fg-ghost:    rgba(13,37,61,0.07);   /* marquee ghost text */
+  --line:        #e3e8ee;
+  --card-bg:     #ffffff;
+  --badge-bg:    rgba(255,255,255,0.78);
+  --badge-line:  rgba(13,37,61,0.08);
+  --mesh-op:     0.92; /* @kind other */
+  --shadow-soft: 0 1px 3px rgba(0,55,112,.08);
+  --shadow-lift: 0 18px 50px rgba(0,55,112,.16), 0 4px 12px rgba(0,55,112,.06);
+}
+[data-theme="dark"] {
+  --bg:          #0a1626;
+  --bg-soft:     #0d1c30;
+  --fg:          #ffffff;
+  --fg-soft:     rgba(255,255,255,.8);
+  --fg-mute:     rgba(255,255,255,.55);
+  --fg-ghost:    rgba(255,255,255,0.06);
+  --line:        rgba(255,255,255,.12);
+  --card-bg:     #112138;
+  --badge-bg:    rgba(20,36,58,0.7);
+  --badge-line:  rgba(255,255,255,.12);
+  --mesh-op:     0.55; /* @kind other */
+  --shadow-soft: 0 1px 3px rgba(0,0,0,.4);
+  --shadow-lift: 0 24px 60px rgba(0,0,0,.5);
+}
+
+/* ============================================================================
+   FLUID TYPE SYSTEM
+   Base = 16px = 1rem. All sizes are proportional (rem) so they scale with the
+   user's root font preference; display tiers add a vw term for fluid scaling
+   between a rem floor and a rem ceiling. Line-heights are unitless (= ratio of
+   font-size) and letter-spacing is in em (= ratio of font-size) — both stay
+   proportional at every size.
+   ---------------------------------------------------------------------------- */
+:root {
+  /* fluid display + heading scale (modular ~1.25, clamped) */
+  --fs-display:  clamp(3.25rem, 1rem + 9.0vw,  8.375rem); /* @kind other */
+  --fs-h1:       clamp(2.5rem,  1rem + 6.5vw,  6rem);      /* @kind other */
+  --fs-h2:       clamp(2rem,    1rem + 4.0vw,  3.625rem);  /* @kind other */
+  --fs-h2-sm:    clamp(1.875rem,1rem + 3.0vw,  2.875rem);  /* @kind other */
+  --fs-h3:       clamp(1.3125rem, 1.18rem + 0.6vw, 1.5rem); /* @kind other */
+  --fs-lead:     clamp(1.125rem, 1.04rem + 0.4vw, 1.5rem);  /* @kind other */
+
+  /* static rem steps */
+  --fs-body-lg:  1.125rem;   /* @kind other */
+  --fs-body:     0.9375rem;  /* @kind other */
+  --fs-sm:       0.875rem;   /* @kind other */
+  --fs-caption:  0.8125rem;  /* @kind other */
+  --fs-eyebrow:  0.6875rem;  /* @kind other */
+
+  /* proportional line-heights */
+  --lh-display:  0.95; /* @kind other */
+  --lh-tight:    1.08; /* @kind other */
+  --lh-snug:     1.25; /* @kind other */
+  --lh-body:     1.6;  /* @kind other */
+
+  /* proportional tracking (em) */
+  --tr-display: -0.04em; /* @kind other */
+  --tr-tight:   -0.03em; /* @kind other */
+  --tr-snug:    -0.02em; /* @kind other */
+  --tr-flat:    -0.01em; /* @kind other */
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 100%; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background-color: var(--bg); color: var(--fg);
+  font-family: 'Inter', system-ui, sans-serif; font-weight: 300;
+  font-size: var(--fs-body); line-height: var(--lh-body); letter-spacing: var(--tr-flat);
+  font-feature-settings: 'ss01';
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .5s ease, color .5s ease;
+  overflow-x: hidden;
+}
+
+/* Global, balanced hierarchy — applies wherever a tag isn't given an explicit
+   per-section size. Margins use rem so vertical rhythm scales with the type. */
+h1, h2, h3, h4 { font-weight: 300; margin: 0; text-wrap: balance; }
+h1 { font-size: var(--fs-h1); line-height: var(--lh-display); letter-spacing: var(--tr-display); }
+h2 { font-size: var(--fs-h2); line-height: var(--lh-tight);   letter-spacing: var(--tr-tight); }
+h3 { font-size: var(--fs-h3); line-height: var(--lh-snug);    letter-spacing: var(--tr-snug); }
+h4 { font-size: var(--fs-body-lg); line-height: var(--lh-snug); letter-spacing: var(--tr-flat); }
+p  { margin: 0; line-height: var(--lh-body); text-wrap: pretty; }
+
+.wrap { max-width: 77.5rem; margin: 0 auto; padding: 0 2.5rem; }
+.eyebrow {
+  font-size: var(--fs-eyebrow); letter-spacing: .14em; text-transform: uppercase;
+  font-weight: 400; color: var(--primary);
+}
+.eyebrow::before { content: "// "; opacity: .5; }
+
+/* ============================== ORIGIN CORE (hero bg emblem) ==============================
+   A faint, slow, breathing brand emblem behind the hero. Subtle accent only. */
+.origin-core {
+  position: absolute; top: 7rem; left: 50%; transform: translateX(-50%);
+  width: clamp(20rem, 46vw, 34rem); aspect-ratio: 1; z-index: 2;
+  pointer-events: none; opacity: .22;
+  -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
+          mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
+}
+[data-theme="dark"] .origin-core { opacity: .3; }
+
+.oc-text {
+  font-family: 'Inter', system-ui, sans-serif; font-weight: 400;
+  font-size: 13px; letter-spacing: .26em; fill: var(--primary);
+  text-transform: uppercase;
+}
+.oc-textrot { transform-box: view-box; transform-origin: 200px 200px; animation: oc-spin 60s linear infinite; }
+.oc-orbit   { transform-box: view-box; transform-origin: 200px 200px; animation: oc-spin 8s linear infinite; }
+.oc-ring    { transform-box: fill-box; transform-origin: center; }
+.oc-core    { transform-box: fill-box; transform-origin: center; animation: oc-breathe 5s ease-in-out infinite; }
+.oc-r1 { animation: oc-breathe 2s ease-in-out infinite; }
+.oc-r2 { animation: oc-breathe 3s ease-in-out infinite; }
+.oc-r3 { animation: oc-breathe 4s ease-in-out infinite; }
+
+@keyframes oc-spin { to { transform: rotate(360deg); } }
+@keyframes oc-breathe {
+  0%, 100% { transform: scale(1);    opacity: .85; }
+  50%      { transform: scale(1.05); opacity: .35; }
+}
+
+/* ---- Tweakable feel: motion energy + backdrop intensity ----
+   --mo-amp scales hover/float distance, --mo-speed scales animation tempo,
+   --mesh-boost scales the gradient-mesh presence. Driven by the Tweaks panel
+   via [data-motion] / [data-backdrop] on <html>. Defaults = balanced. */
+:root {
+  --mo-amp: 1;     /* @kind other */
+  --mo-speed: 1;   /* @kind other */
+  --mesh-boost: 1; /* @kind other */
+}
+[data-motion="calm"] {
+  --mo-amp: .35;  /* @kind other */
+  --mo-speed: .6; /* @kind other */
+}
+[data-motion="lively"] {
+  --mo-amp: 1.75; /* @kind other */
+  --mo-speed: 1.6; /* @kind other */
+}
+[data-backdrop="soft"]  { --mesh-boost: .5; /* @kind other */ }
+[data-backdrop="vivid"] { --mesh-boost: 1.4; /* @kind other */ }
+
+/* ============================== KEYFRAMES ============================== */
+@keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(calc(-9px * var(--mo-amp,1))); } }
+@keyframes floatY2 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(calc(7px * var(--mo-amp,1))); } }
+@keyframes rise { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes drawRing { from { stroke-dashoffset: 132; } to { stroke-dashoffset: 0; } }
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes pulseRing { 0%,100% { transform: scale(1); opacity: .5; } 50% { transform: scale(1.18); opacity: 0; } }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .2; } }
+
+/* staggered load reveal */
+.reveal { opacity: 0; animation: rise .9s cubic-bezier(.2,.7,.2,1) forwards; }
+.reveal.d1 { animation-delay: .08s; } .reveal.d2 { animation-delay: .16s; }
+.reveal.d3 { animation-delay: .24s; } .reveal.d4 { animation-delay: .32s; }
+.reveal.d5 { animation-delay: .4s; }  .reveal.d6 { animation-delay: .48s; }
+
+/* in-view fade (driven by IntersectionObserver adding .in) */
+.io { opacity: 0; transform: translateY(30px); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+.io.in { opacity: 1; transform: none; }
+
+/* ============================== WORDMARK ============================== */
+.wm { display: inline-flex; align-items: center; gap: .6875rem; cursor: pointer; text-decoration: none; }
+.wm-ring { overflow: visible; }
+.wm-ring circle { stroke-dasharray: 132; stroke-dashoffset: 0; }
+.wm-ring .chev { transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .45s ease; }
+.wm:hover .wm-ring .chev { transform: translateY(-26px); opacity: 0; }
+.wm:hover .wm-ring .chev.ghost { transition-delay: .12s; }
+.wm-ring .pulse { transform-origin: center; opacity: 0; }
+.wm:hover .wm-ring .pulse { animation: pulseRing .7s ease-out; }
+.wm-text { font-weight: 300; letter-spacing: var(--tr-display); color: var(--fg); line-height: 1; }
+.wm-text .z { color: var(--primary); position: relative; }
+
+/* ---- Hero "zero." signature treatment ---- */
+.hero-zero {
+  position: relative; display: inline-block; padding: 0 .02em;
+  background: linear-gradient(100deg, var(--primary) 0%, var(--primary-soft) 35%, var(--ruby) 70%, var(--primary) 100%);
+  background-size: 280% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sheen calc(6s / var(--mo-speed,1)) ease-in-out infinite;
+}
+@keyframes sheen { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.hero-zero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: .08em; height: .06em;
+  background: linear-gradient(90deg, var(--primary), var(--ruby));
+  border-radius: 99px; transform: scaleX(0); transform-origin: left;
+  animation: drawUnder 1s cubic-bezier(.2,.8,.2,1) .6s forwards;
+}
+@keyframes drawUnder { to { transform: scaleX(1); } }
+.hero-zero:hover { animation-duration: 1.4s; }
+.hero-dot {
+  -webkit-text-fill-color: var(--primary); color: var(--primary);
+  display: inline-block; animation: blink 1.3s steps(1) infinite;
+}
+
+/* ============================== NAV ============================== */
+.nav {
+  position: sticky; top: 0; z-index: 60;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+  transition: background-color .5s ease, border-color .5s ease;
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 4.625rem; }
+.nav-links { display: flex; gap: 2.125rem; align-items: center; }
+
+/* sliding text-swap link */
+.navlink {
+  position: relative; display: inline-block; overflow: hidden; height: 1.25em;
+  color: var(--fg-mute); font-size: var(--fs-body); font-weight: 300; text-decoration: none;
+  letter-spacing: var(--tr-flat);
+}
+.navlink span { display: block; transition: transform .38s cubic-bezier(.6,0,.2,1); }
+.navlink span::after {
+  content: attr(data-t); position: absolute; left: 0; top: 100%; color: var(--fg);
+}
+.navlink:hover span { transform: translateY(-100%); }
+
+.icon-btn {
+  width: 2.5rem; height: 2.5rem; border-radius: 999px; border: 1px solid var(--line);
+  background-color: var(--card-bg); color: var(--fg); display: inline-flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 1.125rem;
+  transition: transform .25s ease, background .3s ease, color .3s ease;
+}
+.icon-btn:hover { transform: rotate(-12deg) scale(1.06); }
+
+/* ---- Hamburger button (mobile only) ---- */
+.nav-burger { display: none; }
+.burger { display: flex; flex-direction: column; gap: 4px; width: 18px; align-items: center; }
+.burger i { display: block; width: 18px; height: 1.6px; background: var(--fg); border-radius: 2px;
+  transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease; }
+.burger.x i:nth-child(1) { transform: translateY(5.6px) rotate(45deg); }
+.burger.x i:nth-child(2) { opacity: 0; }
+.burger.x i:nth-child(3) { transform: translateY(-5.6px) rotate(-45deg); }
+
+/* ---- Slide-down mobile menu ---- */
+.nav-menu {
+  display: none; overflow: hidden; max-height: 0;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: max-height .45s cubic-bezier(.4,0,.2,1), border-color .4s ease;
+}
+.nav-menu.open { max-height: 80vh; border-bottom-color: var(--line); }
+.nav-menu-inner { display: flex; flex-direction: column; padding: .75rem 1.375rem 1.75rem; }
+.nav-menu-link {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem .25rem; text-decoration: none; color: var(--fg);
+  font-size: 1.5rem; font-weight: 300; letter-spacing: var(--tr-snug);
+  border-bottom: 1px solid var(--line);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .4s ease, transform .4s cubic-bezier(.2,.8,.2,1), color .25s ease;
+}
+.nav-menu.open .nav-menu-link { opacity: 1; transform: none; }
+.nav-menu-link i { color: var(--fg-mute); transition: transform .3s cubic-bezier(.2,.8,.2,1), color .25s ease; }
+.nav-menu-link:hover, .nav-menu-link:active { color: var(--primary); }
+.nav-menu-link:hover i { color: var(--primary); transform: translate(3px,-3px); }
+.nav-menu-cta { margin-top: 1.5rem; justify-content: center; width: 100%; font-size: var(--fs-body-lg); padding: .9375rem 1.5rem; }
+.nav-scrim {
+  position: fixed; inset: 0; z-index: -1; background: rgba(13,37,61,.35);
+  opacity: 0; pointer-events: none; transition: opacity .4s ease;
+}
+[data-theme="dark"] .nav-scrim { background: rgba(0,0,0,.5); }
+.nav-scrim.show { opacity: 1; pointer-events: auto; }
+
+/* ============================== BUTTONS ============================== */
+.btn {
+  display: inline-flex; align-items: center; gap: .625rem; cursor: pointer;
+  font-family: inherit; font-size: 1rem; font-weight: 400; letter-spacing: var(--tr-flat);
+  padding: .8125rem 1.5rem; border-radius: 999px; border: 1px solid transparent;
+  text-decoration: none; white-space: nowrap; position: relative; overflow: hidden;
+  transition: transform .12s ease, background .25s ease, color .25s ease, border-color .25s ease;
+}
+.btn .arrow { transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+.btn:hover .arrow { transform: translate(4px,-4px); }
+.btn-primary { background-color: var(--primary); color: #fff; }
+.btn-primary:hover { background-color: var(--primary-deep); }
+.btn-primary:active { transform: translateY(1px); background-color: var(--primary-press); }
+.btn-dark { background-color: var(--fg); color: var(--bg); }
+.btn-dark:hover { opacity: .9; }
+.btn-ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+.btn-ghost:hover { border-color: var(--fg); }
+
+/* ============================== FLOATING BADGES ============================== */
+.badge {
+  position: absolute; display: inline-flex; align-items: center; gap: .5rem;
+  background-color: var(--badge-bg); backdrop-filter: blur(8px);
+  border: 1px solid var(--badge-line); border-radius: 999px;
+  padding: .5625rem 1rem; font-size: var(--fs-sm); font-weight: 400; color: var(--fg);
+  box-shadow: var(--shadow-soft); white-space: nowrap; cursor: default;
+  animation: floatY calc(5s / var(--mo-speed,1)) ease-in-out infinite;
+  transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease;
+  z-index: 5;
+}
+.badge .bi { color: var(--primary); font-size: 1rem; display: inline-flex; }
+.badge:hover { transform: scale(1.08) translateY(-4px); box-shadow: var(--shadow-lift); }
+
+/* ============================== MARQUEE ============================== */
+.marquee { position: relative; width: 100%; overflow: hidden; pointer-events: none; user-select: none; }
+.marquee-track { display: flex; width: max-content; animation: marquee calc(28s / var(--mo-speed,1)) linear infinite; }
+.marquee-track.rev { animation-direction: reverse; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.ghost-word {
+  font-size: clamp(4rem, 13vw, 12.5rem); font-weight: 300; letter-spacing: var(--tr-tight);
+  color: transparent; -webkit-text-stroke: 1px var(--fg-ghost); padding: 0 .15em;
+  white-space: nowrap;
+}
+.ghost-word.solid { -webkit-text-stroke: 0; color: var(--fg-ghost); }
+
+/* ============================== CARD FAN ============================== */
+.fan { display: flex; justify-content: center; align-items: flex-end; perspective: 1400px; }
+.fan-card {
+  width: 12rem; height: 15rem; border-radius: 1rem; margin: 0 -1.5rem;
+  box-shadow: var(--shadow-lift); overflow: hidden; flex: none;
+  transform-origin: bottom center; cursor: pointer; position: relative;
+  /* base pose driven by per-card --rot / --lift; ONLY transform animates → no reflow, no jitter */
+  transform: rotate(var(--rot, 0deg)) translateY(var(--lift, 0));
+  transition: transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .45s ease;
+  will-change: transform;
+}
+.fan-card:hover {
+  transform: rotate(0deg) translateY(-1.9rem) scale(1.06);
+  z-index: 10;
+  box-shadow: 0 32px 70px rgba(0,55,112,.30), 0 6px 16px rgba(0,55,112,.10);
+}
+.fan-card-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(0,0,0,.22)); }
+.fan-card-dots { position: absolute; top: .8rem; left: .8rem; display: flex; gap: .3125rem; z-index: 3; }
+.fan-card-dots span { width: .4375rem; height: .4375rem; border-radius: 99px; background: rgba(255,255,255,.55); }
+.fan-card-meta { position: absolute; bottom: .9rem; left: .95rem; right: .95rem; z-index: 3; }
+.fan-card-tag { font-size: .5625rem; letter-spacing: .14em; color: rgba(255,255,255,.7); font-weight: 600; }
+.fan-card-label { font-size: 1rem; font-weight: 300; color: #fff; letter-spacing: -.02em; margin-top: .15rem; }
+
+/* --- Rocket that launches off the card on hover (Station Zero) --- */
+.rocket {
+  position: absolute; left: 50%; top: 44%; z-index: 4;
+  width: 2.9rem; height: 2.9rem; margin: -1.45rem 0 0 -1.45rem;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; color: #fff; font-size: 1.55rem;
+  background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.22);
+  backdrop-filter: blur(2px);
+  transform: rotate(-45deg);            /* point the launch icon straight up */
+  transition: transform .5s cubic-bezier(.4,0,.2,1), opacity .4s ease, background .3s ease;
+}
+.rocket-ring {
+  position: absolute; left: 50%; top: 44%; z-index: 3;
+  width: 2.9rem; height: 2.9rem; margin: -1.45rem 0 0 -1.45rem;
+  border-radius: 50%; border: 1.5px solid rgba(255,255,255,.4); opacity: 0;
+}
+.rocket-exhaust {
+  position: absolute; left: 50%; top: 44%; z-index: 3;
+  width: .5rem; height: 0; margin-left: -.25rem;
+  background: linear-gradient(to bottom, rgba(255,209,128,.95), rgba(234,34,97,.55), rgba(234,34,97,0));
+  border-radius: 0 0 50% 50%; filter: blur(1.5px); opacity: 0;
+}
+.fan-card:hover .rocket   { animation: rocketLaunch .95s cubic-bezier(.45,0,.25,1) forwards; }
+.fan-card:hover .rocket-exhaust { animation: rocketExhaust .95s ease-out forwards; }
+.fan-card:hover .rocket-ring    { animation: rocketRing .8s ease-out forwards; }
+
+@keyframes rocketLaunch {
+  0%   { transform: translateY(0) rotate(-45deg) scale(1); opacity: 1; }
+  16%  { transform: translateY(.35rem) rotate(-45deg) scale(.94); opacity: 1; }   /* tiny crouch */
+  100% { transform: translateY(-10.5rem) rotate(-45deg) scale(.55); opacity: 0; } /* ships off the top */
+}
+@keyframes rocketExhaust {
+  0%   { height: 0; opacity: 0; transform: translateY(1.2rem); }
+  28%  { height: 1.8rem; opacity: .95; transform: translateY(1.2rem); }
+  100% { height: 3rem; opacity: 0; transform: translateY(-7rem); }
+}
+@keyframes rocketRing {
+  0%   { opacity: .7; transform: scale(.6); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+/* ============================== HOVER WORD REVEAL (About) ============================== */
+.reveal-text { font-weight: 300; letter-spacing: var(--tr-snug); }
+.reveal-text .w {
+  color: var(--fg-mute); transition: color .45s ease; cursor: default;
+}
+.reveal-text .w.lit { color: var(--fg); }
+.reveal-text .w:hover { color: var(--primary); }
+
+/* ============================== SERVICE ROWS ==============================
+   Smooth-by-design: the only layout-affecting animation is the description's
+   grid-rows height reveal. Everything else is transform/opacity (GPU). The
+   thumbnail column is permanently reserved so nothing reflows horizontally,
+   and the row never resizes UNDER the cursor (that was the old jitter). */
+.srow {
+  display: grid; grid-template-columns: 2.5rem 1fr 6.75rem 2.875rem; gap: 1.5rem; align-items: center;
+  padding: 1.5rem 1.25rem 1.5rem .5rem; border-top: 1px solid var(--line);
+  cursor: pointer; position: relative; isolation: isolate;
+}
+.srow:last-child { border-bottom: 1px solid var(--line); }
+.srow::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: .875rem;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 9%, transparent), transparent 70%);
+  opacity: 0; transition: opacity .35s ease;
+}
+.srow:hover::before { opacity: 1; }
+
+.srow-ico {
+  display: inline-flex; align-items: center; justify-content: center; font-size: 1.625rem;
+  color: var(--fg-mute); transition: color .3s ease, transform .4s cubic-bezier(.2,.8,.2,1);
+}
+.srow:hover .srow-ico { color: var(--primary); transform: scale(1.12); }
+
+.srow-main { transition: transform .4s cubic-bezier(.2,.8,.2,1); will-change: transform; }
+.srow:hover .srow-main { transform: translateX(.75rem); }
+.srow-title {
+  display: block; font-size: var(--fs-h3); font-weight: 300; letter-spacing: var(--tr-snug);
+  color: var(--fg); transition: color .3s ease;
+}
+.srow:hover .srow-title { color: var(--primary); }
+
+/* description: single smooth height transition via grid-rows 0fr -> 1fr */
+.srow-desc-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .42s cubic-bezier(.2,.8,.2,1); }
+.srow:hover .srow-desc-wrap { grid-template-rows: 1fr; }
+.srow-desc-inner { overflow: hidden; }
+.srow-desc-inner > span {
+  display: block; padding-top: .5rem; max-width: 33.75rem; color: var(--fg-mute);
+  font-size: var(--fs-sm); line-height: 1.5; opacity: 0; transition: opacity .35s ease .06s;
+}
+.srow:hover .srow-desc-inner > span { opacity: 1; }
+
+/* thumbnail: column width is ALWAYS reserved, so this only fades/scales (no reflow) */
+.srow-thumb {
+  width: 6rem; height: 3.75rem; border-radius: .75rem; overflow: hidden; justify-self: end;
+  opacity: 0; transform: scale(.88); transform-origin: right center;
+  transition: opacity .35s ease, transform .42s cubic-bezier(.2,.8,.2,1); will-change: transform, opacity;
+}
+.srow:hover .srow-thumb { opacity: 1; transform: scale(1); }
+
+.srow-arrow {
+  width: 2.875rem; height: 2.875rem; border-radius: 999px; border: 1px solid var(--line);
+  display: inline-flex; align-items: center; justify-content: center; font-size: 1.25rem;
+  color: var(--fg); justify-self: end;
+  transition: transform .4s cubic-bezier(.2,.8,.2,1), background .3s ease, color .3s ease, border-color .3s ease;
+}
+.srow:hover .srow-arrow { background-color: var(--primary); color: #fff; border-color: var(--primary); transform: rotate(45deg); }
+
+/* ============================== STAT / PILLAR CARDS ============================== */
+.tile {
+  background-color: var(--card-bg); border: 1px solid var(--line); border-radius: 1.125rem; padding: 1.75rem;
+  transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .3s ease;
+}
+.tile:hover { transform: translateY(calc(-6px * var(--mo-amp,1))); box-shadow: var(--shadow-lift); }
+.stat-num { font-size: clamp(2.875rem, 6vw, 4.5rem); font-weight: 300; letter-spacing: var(--tr-tight); font-feature-settings: 'tnum'; line-height: 1; }
+
+/* ============================== FAQ ============================== */
+.faq-item { border-bottom: 1px solid var(--line); }
+.faq-q { display: flex; justify-content: space-between; align-items: center; gap: 1.25rem;
+  padding: 1.5rem .25rem; cursor: pointer; font-size: var(--fs-body-lg); font-weight: 300; letter-spacing: var(--tr-flat); line-height: var(--lh-snug); }
+.faq-ico { transition: transform .4s cubic-bezier(.2,.8,.2,1); color: var(--primary); flex: none; }
+.faq-item.open .faq-ico { transform: rotate(45deg); }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .5s cubic-bezier(.4,0,.2,1); }
+.faq-a-inner { padding: 0 .25rem 1.5rem; color: var(--fg-mute); font-size: var(--fs-body); line-height: var(--lh-body); max-width: 47.5rem; }
+
+/* ============================== FOOTER ============================== */
+.foot { background-color: var(--brand-dark-900); color: #fff; }
+[data-theme="dark"] .foot { background-color: #060f1c; }
+.foot-mega { font-size: clamp(4rem, 17vw, 16.25rem); font-weight: 300; letter-spacing: var(--tr-display); line-height: .85;
+  color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.16); user-select: none;
+  transition: -webkit-text-stroke-color .5s ease, color .8s ease; cursor: default; }
+.foot-mega:hover { -webkit-text-stroke-color: rgba(255,255,255,.4); }
+.foot-soc { cursor: pointer; transition: color .25s ease, transform .25s ease; }
+.foot-soc:hover { color: #fff; transform: translateY(-3px); }
+.foot-link { transition: color .25s ease; }
+.foot-link:hover { color: #fff !important; }
+
+/* ============================== RESPONSIVE ==============================
+   Breakpoints: 1024 (tablet) · 900 · 820 · 680 · 560 · 420
+   Inline grids (.why-grid/.foot-grid/.faq-grid) need !important to beat
+   the per-element inline style. */
+
+/* Tablet & down */
+@media (max-width: 1024px) {
+  .foot-grid { grid-template-columns: 1.4fr 1fr 1fr !important; gap: 2rem !important; }
+  .foot-mega { -webkit-text-stroke-width: .5px; }
+}
+
+/* Why-us pillars + tighter FAQ gap */
+@media (max-width: 900px) {
+  .why-grid { grid-template-columns: 1fr !important; gap: 1rem !important; }
+  .faq-grid { gap: 2.5rem !important; }
+}
+
+/* Primary mobile shift */
+@media (max-width: 820px) {
+  .wrap { padding: 0 1.375rem; }
+  .nav-links { display: none; }
+  .nav-mobile-hide { display: none !important; }
+  .nav-burger { display: inline-flex; }
+  .nav-menu { display: block; }
+  .srow { grid-template-columns: 2.25rem 1fr 2.875rem; gap: 1rem; }
+  .srow-thumb { display: none; }
+  .fan-card { margin: 0 -2rem; width: 9.5rem; height: 12rem; }
+  .faq-grid { grid-template-columns: 1fr !important; gap: 1.5rem !important; }
+  .faq-left { max-width: 34rem; }
+  .foot-grid { grid-template-columns: 1fr 1fr !important; gap: 1.75rem 2rem !important; }
+}
+
+/* Hide decorative floating badges — copy already lives in the headline/lead */
+@media (max-width: 680px) {
+  .hero-stage .badge { display: none; }
+  .fan-card { margin: 0 -1.75rem; width: 8.5rem; height: 10.75rem; }
+}
+
+/* Compact nav: tighten the action cluster */
+@media (max-width: 640px) {
+  .nav-right { gap: .625rem; }
+  .nav-inner { height: 4rem; }
+}
+
+/* Footer columns stack */
+@media (max-width: 560px) {
+  .foot-grid { grid-template-columns: 1fr 1fr !important; gap: 1.5rem !important; }
+}
+
+/* Small phones: shrink the wordmark so the nav never overflows */
+@media (max-width: 420px) {
+  .nav .wm-text { font-size: 1.125rem !important; }
+  .nav .wm svg { width: 1.6rem !important; height: 1.6rem !important; }
+  .foot-grid { grid-template-columns: 1fr !important; }
+  .cta-btns .btn { width: 100%; justify-content: center; }
+  .fan-card { margin: 0 -1.5rem; width: 7rem; height: 9rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; }
+  .badge { animation: none; }
+}
+
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+/* Animated St8tionZero wordmark.
+   The launch-ring is the "0": on hover the chevron rockets up & a pulse fires.
+   Props: size (font size in rem), light (force white) */
+function Wordmark({ size = 1.3125, light = false, onClick, style }) {
+  const r = size * 1.5 + "rem"; // ring box, proportional to the text
+  const stroke = light ? "#fff" : "var(--primary)";
+  return (
+    <a className="wm" onClick={onClick} href="#top" style={style} aria-label="St8tionZero">
+      <svg className="wm-ring" width={r} height={r} viewBox="0 0 64 64" fill="none" style={{ flex: "none" }}>
+        <circle className="pulse" cx="32" cy="32" r="20" fill="none" stroke={stroke} strokeWidth="3" />
+        <circle cx="32" cy="32" r="20" fill="none" stroke={stroke} strokeWidth="3" />
+        <g className="chev">
+          <path d="M32 42 L32 24 M24 31 L32 22 L40 31" stroke={stroke} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+        <g className="chev ghost" opacity="0.0">
+          <path d="M32 42 L32 24 M24 31 L32 22 L40 31" stroke={stroke} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+      </svg>
+      <span className="wm-text" style={{ fontSize: size + "rem", color: light ? "#fff" : "var(--fg)" }}>
+        St8tion<span className="z" style={light ? { color: "#b9b9f9" } : null}>Zero</span>
+      </span>
+    </a>);
+
+}
+window.Wordmark = Wordmark;
+  </script>
+
+  <script type="text/babel">
+/* ORIGIN CORE — subtle animated brand emblem that breathes behind the hero.
+   Distilled from the Station Zero reference: a circular STATION ZERO text ring,
+   three concentric pulsing rings, and the launch-rocket mark orbiting the path.
+   Rendered very faint (CSS opacity) so it's an accent, never noise. */
+function OriginCore() {
+  return (
+    <div className="origin-core" aria-hidden="true">
+      <svg viewBox="0 0 400 400" width="100%" height="100%">
+        <defs>
+          {/* circle the text rides on (r=150) */}
+          <path id="oc-textpath" d="M200,50 a150,150 0 1,1 -0.1,0 z" />
+          <linearGradient id="oc-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="var(--primary-soft)" />
+            <stop offset="0.5" stopColor="var(--magenta)" />
+            <stop offset="1" stopColor="var(--ruby)" />
+          </linearGradient>
+        </defs>
+
+        {/* concentric breathing rings */}
+        <circle className="oc-ring oc-r3" cx="200" cy="200" r="178" fill="none" stroke="url(#oc-grad)" strokeWidth="1.4" />
+        <circle className="oc-ring oc-r2" cx="200" cy="200" r="140" fill="none" stroke="url(#oc-grad)" strokeWidth="1.4" />
+        <circle className="oc-ring oc-r1" cx="200" cy="200" r="104" fill="none" stroke="var(--primary)" strokeWidth="1.2" />
+
+        {/* slowly rotating circular text */}
+        <g className="oc-textrot">
+          <text className="oc-text">
+            <textPath href="#oc-textpath" startOffset="0">
+              STATION ZERO · LAUNCH FROM ZERO · STATION ZERO · LAUNCH FROM ZERO ·
+            </textPath>
+          </text>
+        </g>
+
+        {/* orbiting launch-rocket mark (rides the text circle, r=150) */}
+        <g className="oc-orbit">
+          <g transform="translate(200,50)">
+            <circle r="11" fill="none" stroke="var(--primary)" strokeWidth="2" />
+            <path d="M0,5 L0,-5 M-4,-1 L0,-6 L4,-1" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </g>
+        </g>
+
+        {/* core dot */}
+        <circle className="oc-core" cx="200" cy="200" r="34" fill="none" stroke="var(--primary-soft)" strokeWidth="1" />
+        <circle cx="200" cy="200" r="3" fill="var(--primary)" />
+      </svg>
+    </div>
+  );
+}
+window.OriginCore = OriginCore;
+  </script>
+
+  <script type="text/babel">
+/* Top navigation — sliding text-swap links + light/dark theme toggle.
+   On tablet/mobile (≤820px) the centre links collapse into an animated
+   hamburger menu so the full nav stays available. */
+function Nav({ theme, setTheme }) {
+  const links = [
+    { label: "Services", href: "#services" },
+    { label: "Why us", href: "#whyus" },
+    { label: "About", href: "#about" },
+    { label: "FAQ", href: "#faq" },
+  ];
+  const [open, setOpen] = React.useState(false);
+
+  // Lock body scroll while the menu is open; close on resize back to desktop.
+  React.useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    const onResize = () => { if (window.innerWidth > 820) setOpen(false); };
+    window.addEventListener("resize", onResize);
+    return () => { window.removeEventListener("resize", onResize); document.body.style.overflow = ""; };
+  }, [open]);
+
+  return (
+    <nav className={"nav" + (open ? " menu-open" : "")}>
+      <div className="wrap nav-inner">
+        <Wordmark size={1.3125} onClick={() => setOpen(false)} />
+
+        <div className="nav-links">
+          {links.slice(0, 3).map((l) => (
+            <a key={l.label} className="navlink" href={l.href}>
+              <span data-t={l.label}>{l.label}</span>
+            </a>
+          ))}
+        </div>
+
+        <div className="nav-right" style={{ display: "flex", alignItems: "center", gap: ".875rem" }}>
+          <a className="navlink nav-cta-faq nav-mobile-hide" href="#faq" style={{ alignSelf: "center" }}><span data-t="FAQ">FAQ</span></a>
+          <a className="btn btn-primary nav-mobile-hide" href="#contact" style={{ padding: ".625rem 1.125rem", fontSize: "var(--fs-body)" }}>
+            Get a quote <i className="ph-bold ph-arrow-up-right arrow" />
+          </a>
+          <button className="icon-btn" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Toggle theme">
+            <i className={theme === "dark" ? "ph-fill ph-sun" : "ph-bold ph-moon-stars"} />
+          </button>
+          <button className="icon-btn nav-burger" onClick={() => setOpen(!open)} aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open}>
+            <span className={"burger" + (open ? " x" : "")}><i /><i /><i /></span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile slide-down menu */}
+      <div className={"nav-menu" + (open ? " open" : "")} id="nav-menu">
+        <div className="wrap nav-menu-inner">
+          {links.map((l, i) => (
+            <a key={l.label} className="nav-menu-link" href={l.href} style={{ transitionDelay: (open ? 0.06 + i * 0.05 : 0) + "s" }} onClick={() => setOpen(false)}>
+              <span>{l.label}</span>
+              <i className="ph-bold ph-arrow-up-right" />
+            </a>
+          ))}
+          <a className="btn btn-primary nav-menu-cta" href="#contact" onClick={() => setOpen(false)}>
+            Get a quote <i className="ph-bold ph-arrow-up-right arrow" />
+          </a>
+        </div>
+      </div>
+
+      {/* Backdrop */}
+      <div className={"nav-scrim" + (open ? " show" : "")} onClick={() => setOpen(false)} />
+    </nav>
+  );
+}
+window.Nav = Nav;
+  </script>
+
+  <script type="text/babel">
+/* HERO — mesh wash, ghost-text marquee, huge headline, fanned work cards,
+   floating animated badges. */
+const HERO_CARDS = [
+  { rot: -14, bg: "linear-gradient(160deg,#2a2c6b,#533afd)", label: "Local SEO",          tag: "SEO" },
+  { rot: 0,   bg: "linear-gradient(165deg,#0d253d,#2a2c6b)", label: "Everyday businesses", tag: "WEB" },
+  { rot: 14,  bg: "linear-gradient(160deg,#ea2261,#f96bee)", label: "Socials kit",         tag: "SOCIAL" },
+];
+
+function HeroCard({ c }) {
+  return (
+    <div className="fan-card" style={{ "--rot": c.rot + "deg", "--lift": (Math.abs(c.rot) * 0.5) + "px", background: c.bg }}>
+      <div className="fan-card-veil" />
+      <div className="fan-card-dots"><span /><span /><span /></div>
+      <span className="rocket-exhaust" />
+      <span className="rocket-ring" />
+      <div className="rocket"><i className="ph-fill ph-rocket-launch" /></div>
+      <div className="fan-card-meta">
+        <div className="fan-card-tag">{c.tag}</div>
+        <div className="fan-card-label">{c.label}</div>
+      </div>
+    </div>
+  );
+}
+
+function Badge({ icon, children, style, delay = 0, alt }) {
+  return (
+    <span className="badge" style={{ ...style, animationDelay: delay + "s", animationName: alt ? "floatY2" : "floatY" }}>
+      <i className={"bi ph-fill ph-" + icon} />{children}
+    </span>
+  );
+}
+
+function Hero() {
+  return (
+    <header id="top" style={{ position: "relative", overflow: "hidden", paddingBottom: "2.5rem" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "38.75rem", background: "var(--mesh)", opacity: "calc(var(--mesh-op) * var(--mesh-boost, 1))" }} />
+      <div style={{ position: "absolute", top: "22.5rem", left: 0, right: 0, height: "20rem", background: "linear-gradient(to bottom, rgba(0,0,0,0), var(--bg))" }} />
+
+      <OriginCore />
+
+      {/* ghost marquee sitting behind the cards */}
+      <div className="marquee" style={{ position: "absolute", top: "26.875rem", left: 0, right: 0, zIndex: 1 }}>
+        <div className="marquee-track">
+          {[0, 1].map((k) => (
+            <div key={k} style={{ display: "flex", alignItems: "center" }}>
+              {["WEBSITES", "SEO", "SOCIALS", "BRAND", "GOOGLE"].map((w) => (
+                <React.Fragment key={w}>
+                  <span className="ghost-word">{w}</span>
+                  <i className="ph-thin ph-asterisk" style={{ fontSize: "3.75rem", color: "var(--fg-ghost)", margin: "0 .1em" }} />
+                </React.Fragment>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="wrap" style={{ position: "relative", zIndex: 4, paddingTop: "4.375rem", textAlign: "center" }}>
+        <div className="reveal d1 eyebrow" style={{ display: "inline-block" }}>South African digital studio</div>
+
+        <h1 style={{ margin: "1.25rem 0 0", fontWeight: 300, letterSpacing: "var(--tr-display)", lineHeight: "var(--lh-display)", fontSize: "var(--fs-display)" }}>
+          <span className="reveal d2" style={{ display: "block" }}>Launch</span>
+          <span className="reveal d3" style={{ display: "block" }}>
+            from <span className="hero-zero">zero<span className="hero-dot">.</span></span>
+          </span>
+        </h1>
+
+        <p className="reveal d4" style={{ margin: "1.625rem auto 0", maxWidth: "34rem", fontSize: "var(--fs-lead)", color: "var(--fg-soft)", lineHeight: "var(--lh-snug)" }}>
+          Websites, SEO, social media — done properly, priced fairly. No complicated bureaucracy. We'll keep it simple.
+        </p>
+
+        <div className="reveal d5" style={{ display: "flex", gap: ".75rem", justifyContent: "center", marginTop: "1.875rem", flexWrap: "wrap" }}>
+          <a className="btn btn-primary" href="#services">See what we do <i className="ph-bold ph-arrow-down arrow" /></a>
+          <a className="btn btn-ghost" href="#about">Why St8tionZero</a>
+        </div>
+
+        {/* fan + badges */}
+        <div className="hero-stage" style={{ position: "relative", marginTop: "3.5rem" }}>
+          <Badge icon="rocket-launch" style={{ top: ".875rem", left: "16%" }} delay={0}>Live quickly</Badge>
+          <Badge icon="tag" style={{ top: "-.375rem", right: "17%" }} delay={0.6} alt>Fixed pricing, upfront</Badge>
+          <Badge icon="hand-heart" style={{ bottom: "2.375rem", left: "9%" }} delay={1.1} alt>No complicated bureaucracy. We'll keep it simple</Badge>
+          <Badge icon="magnifying-glass" style={{ bottom: ".75rem", right: "10%" }} delay={1.6}>Found on Google</Badge>
+
+          <div className="fan reveal d6">
+            {HERO_CARDS.map((c, i) => <HeroCard key={i} c={c} />)}
+          </div>
+        </div>
+
+        <div className="reveal d6" style={{ display: "inline-flex", alignItems: "center", gap: ".5rem", marginTop: "1.875rem", color: "var(--fg-mute)", fontSize: "var(--fs-caption)" }}>
+          <i className="ph-thin ph-mouse-simple" style={{ fontSize: "1.125rem" }} /> Scroll to explore
+        </div>
+      </div>
+    </header>
+  );
+}
+window.Hero = Hero;
+  </script>
+
+  <script type="text/babel">
+/* SERVICES — smooth hover-reveal rows.
+   Jitter fix: the thumbnail column is ALWAYS reserved (no horizontal reflow),
+   the description reveals via a single grid-rows height transition, and the
+   row content shifts with a GPU transform — no more animating padding/width/
+   max-width together (which thrashed layout every frame). */
+const SERVICES = [
+  { icon: "device-mobile", title: "Web Design", desc: "Sharp, fast, mobile-first websites — built for a customer on a phone in a taxi, as well as the client seated in a boardroom.", bg: "linear-gradient(160deg,#2a2c6b,#533afd)" },
+  { icon: "magnifying-glass", title: "SEO Configuration", desc: "Get found on Google when someone types \u201cbest near me\u201d late on a Tuesday night.", bg: "linear-gradient(160deg,#0d253d,#273951)" },
+  { icon: "instagram-logo", title: "Social Media", desc: "Profiles and a posting strategy that make your brand look legit — not blurry flyers in caps lock.", bg: "linear-gradient(160deg,#ea2261,#f96bee)" },
+];
+
+function Services() {
+  return (
+    <section id="services" style={{ background: "var(--bg-soft)", padding: "clamp(4.375rem,9vw,7.5rem) 0" }}>
+      <div className="wrap">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1.25rem" }}>
+          <div className="io">
+            <div className="eyebrow">What we do</div>
+            <h2 style={{ fontWeight: 300, letterSpacing: "var(--tr-tight)", fontSize: "var(--fs-h2)", margin: "1rem 0 0", lineHeight: "var(--lh-display)" }}>Three things,<br />done properly.</h2>
+          </div>
+          <p className="io" style={{ color: "var(--fg-mute)", maxWidth: "20rem", fontSize: "var(--fs-body)" }}>Hover any service to see what it means. No 90-day strategy workshop required.</p>
+        </div>
+
+        <div style={{ marginTop: "3.125rem" }}>
+          {SERVICES.map((s) => (
+            <div className="srow io" key={s.title}>
+              <span className="srow-ico"><i className={"ph-thin ph-" + s.icon} /></span>
+              <div className="srow-main">
+                <span className="srow-title">{s.title}</span>
+                <div className="srow-desc-wrap"><div className="srow-desc-inner"><span>{s.desc}</span></div></div>
+              </div>
+              <div className="srow-thumb" style={{ background: s.bg }} />
+              <div className="srow-arrow"><i className="ph-bold ph-arrow-up-right" /></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+window.Services = Services;
+  </script>
+
+  <script type="text/babel">
+/* ABOUT (page 2 intro) — scroll-linked word reveal, grey -> ink.
+   No stats, no numbers — just the story. */
+const { useRef, useEffect, useState } = React;
+
+function ScrollRevealText({ text, lead }) {
+  const ref = useRef(null);
+  const words = text.split(" ");
+  const [lit, setLit] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const el = ref.current;if (!el) return;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const start = vh * 0.85,end = vh * 0.35;
+      const p = Math.min(1, Math.max(0, (start - r.top) / (start - end)));
+      setLit(Math.round(p * words.length));
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {window.removeEventListener("scroll", onScroll);window.removeEventListener("resize", onScroll);};
+  }, [words.length]);
+  return (
+    <p ref={ref} className="reveal-text" style={{ fontSize: "var(--fs-h2-sm)", lineHeight: 1.22, margin: 0 }}>
+      {lead && <span className="w lit" style={{ color: "var(--fg)" }}>{lead} </span>}
+      {words.map((w, i) =>
+      <span key={i} className={"w" + (i < lit ? " lit" : "")}>{w} </span>
+      )}
+    </p>);
+
+}
+
+function About() {
+  const tags = ["Websites", "Local SEO", "Google Business", "Instagram", "Facebook", "Brand basics"];
+  return (
+    <section id="about" style={{ padding: "clamp(5rem,11vw,9.375rem) 0 clamp(3.75rem,8vw,6.25rem)" }}>
+      <div className="wrap">
+        <div className="eyebrow io">About us</div>
+        <div style={{ marginTop: "1.75rem" }}>
+          <ScrollRevealText
+            lead="Your website should load whether someone is on fibre in Sandton or standing at a taxi rank with two bars of signal. That’s the standard."
+            text="St8tionZero builds websites, Google visibility, and social media that work where real South Africans use them. Digital foundations that help South African businesses get found, get trusted, and get chosen. No gimmicks. Just good work." />
+          
+        </div>
+
+        <div className="io" style={{ display: "flex", flexWrap: "wrap", gap: ".625rem", marginTop: "2.75rem" }}>
+          {tags.map((t) =>
+          <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: ".5rem", border: "1px solid var(--line)", color: "var(--fg-soft)", borderRadius: 999, padding: ".5625rem 1rem", fontSize: "var(--fs-sm)", background: "var(--card-bg)" }}>
+              <span style={{ width: ".375rem", height: ".375rem", borderRadius: 99, background: "var(--primary)" }} />{t}
+            </span>
+          )}
+        </div>
+      </div>
+    </section>);
+
+}
+window.About = About;
+  </script>
+
+  <script type="text/babel">
+/* WHY US — three value pillars on hover-lift tiles */
+const PILLARS = [
+{ n: "01", icon: "coins", title: "Pricing that doesn’t require a second bond.", body: "Your marketing budget shouldn’t need life support after paying for a website.\n\nWe keep things affordable, transparent, and sensible." },
+{ n: "02", icon: "lightning", title: "Designed for the daily grind.", body: "Whether your customers are in traffic, at work, or grabbing lunch, we make sure they can find you online." },
+{ n: "03", icon: "handshake", title: "You deal with us. Actual us.", body: "No call centre. No \u201cyour account manager will be in touch.\u201d You talk directly to the person building your site. Questions get answered, things move." }];
+
+
+function WhyUs() {
+  return (
+    <section id="whyus" style={{ padding: "clamp(4.375rem,9vw,7.5rem) 0" }}>
+      <div className="wrap">
+        <div className="io" style={{ maxWidth: "45rem" }}>
+          <div className="eyebrow">Why St8tionZero</div>
+          <h2 style={{ fontWeight: 300, letterSpacing: "var(--tr-tight)", fontSize: "var(--fs-h2)", margin: "1rem 0 0", lineHeight: "var(--lh-tight)" }}>
+            Built for SA small business. <span style={{ color: "var(--primary)" }}>No load-shedding of value.</span>
+          </h2>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "1.125rem", marginTop: "3.125rem" }} className="why-grid">
+          {PILLARS.map((p) =>
+          <div className="tile io" key={p.title} style={{ padding: "2rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ width: "3.125rem", height: "3.125rem", borderRadius: ".875rem", background: "var(--bg-soft)", border: "1px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary)", fontSize: "1.5rem" }}>
+                  <i className={"ph-thin ph-" + p.icon} />
+                </div>
+                <span style={{ color: "var(--fg-mute)", fontSize: "1.125rem", opacity: .5 }}><i className="ph-bold ph-arrow-up-right" /></span>
+              </div>
+              <h3 style={{ fontWeight: 300, fontSize: "var(--fs-h3)", letterSpacing: "var(--tr-flat)", lineHeight: "var(--lh-snug)", margin: "1.375rem 0 0" }}>{p.title}</h3>
+              <p style={{ color: "var(--fg-mute)", fontSize: "var(--fs-sm)", lineHeight: "var(--lh-body)", marginTop: ".75rem", whiteSpace: "pre-line" }}>{p.body}</p>
+            </div>
+          )}
+        </div>
+        <p className="io" style={{ textAlign: "center", color: "var(--fg-soft)", fontSize: "var(--fs-lead)", fontWeight: 300, letterSpacing: "var(--tr-flat)", lineHeight: "var(--lh-snug)", margin: "3.5rem auto 0", maxWidth: "45rem" }}>Good businesses grow through word of mouth. Great businesses 
+become accessible Online.
+        </p>
+      </div>
+    </section>);
+
+}
+window.WhyUs = WhyUs;
+  </script>
+
+  <script type="text/babel">
+/* FAQ — smooth accordion */
+const FAQS = [
+{ q: "How can St8tionZero help my business grow?", a: "We get you the digital basics that actually move the needle for a small SA business: a fast website, a Google presence so customers find you, and socials that look the part. No fluff, no 90-day workshops — just the things that bring people through your door." },
+{ q: "What does it cost — really?", a: "Fixed packages with the price shown upfront. You see the number before we start. No \u201cinvestment levels\u201d call, no surprise invoices." },
+{ q: "How long until my site is live?", a: "We move quickly. Once we have your content and logo, we give you a clear timeline upfront — and stick to it, so you\u2019re never left wondering." },
+{ q: "Do you work with businesses outside the big cities?", a: "Absolutely. The salon in Fourways, the panel beater in Benoni, the coffee spot in Maboneng — and everywhere in between. If you\u2019re an SA business with customers, we can help." },
+{ q: "Who actually does the work?", a: "Us. The person you talk to is the person building your site. No call centre, no account manager relay race." }];
+
+
+function Faq() {
+  const [open, setOpen] = React.useState(0);
+  return (
+    <section id="faq" style={{ padding: "clamp(4.375rem,9vw,7.5rem) 0" }}>
+      <div className="wrap faq-grid" style={{ display: "grid", gridTemplateColumns: "21.25rem 1fr", gap: "3.75rem" }}>
+        <div className="io faq-left">
+          <div className="eyebrow">FAQ</div>
+          <h2 style={{ fontWeight: 300, letterSpacing: "var(--tr-tight)", fontSize: "var(--fs-h2-sm)", margin: "1rem 0 0", lineHeight: "var(--lh-tight)" }}>Questions,<br />answered straight.</h2>
+          <p style={{ color: "var(--fg-mute)", fontSize: "var(--fs-body)", marginTop: "1rem" }}>Still unsure? Just message us — You'll get a real reply.</p>
+          <a className="btn btn-ghost" href="#contact" style={{ marginTop: "1.375rem" }}>Ask us anything <i className="ph-bold ph-arrow-up-right arrow" /></a>
+        </div>
+        <div className="io">
+          {FAQS.map((f, i) =>
+          <div className={"faq-item" + (open === i ? " open" : "")} key={i}>
+              <div className="faq-q" onClick={() => setOpen(open === i ? -1 : i)}>
+                <span>{f.q}</span>
+                <i className="faq-ico ph-bold ph-plus" />
+              </div>
+              <div className="faq-a" style={{ maxHeight: open === i ? "15rem" : 0 }}>
+                <div className="faq-a-inner">{f.a}</div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>);
+
+}
+window.Faq = Faq;
+  </script>
+
+  <script type="text/babel">
+/* CTA band + dark footer with a giant animated wordmark */
+function Footer() {
+  const cols = [
+    { h: "Services", links: ["Web design", "SEO setup", "Social media", "Maintenance"] },
+    { h: "Studio", links: ["Why us", "Our work", "Pricing", "Get a quote"] },
+    { h: "Connect", links: [{ label: "WhatsApp", href: "https://wa.me/27648052749" }, { label: "Email", href: "mailto:st8ionzero@gmail.com" }] },
+  ];
+  const isObj = (l) => typeof l === "object";
+  return (
+    <React.Fragment>
+      {/* CTA band */}
+      <section id="contact" style={{ padding: "clamp(3.75rem,8vw,6.875rem) 0" }}>
+        <div className="wrap">
+          <div className="io" style={{ position: "relative", overflow: "hidden", borderRadius: "1.75rem", padding: "clamp(2.5rem,6vw,5.25rem)", textAlign: "center", background: "var(--mesh)" }}>
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.55))", mixBlendMode: "normal" }} />
+            <div style={{ position: "relative" }}>
+              <h2 style={{ fontWeight: 300, letterSpacing: "var(--tr-display)", fontSize: "var(--fs-h1)", lineHeight: "var(--lh-display)", margin: 0, color: "var(--ink)" }}>
+                Ready to launch <span className="hero-zero">from&nbsp;zero?</span>
+              </h2>
+              <p style={{ color: "var(--ink-secondary)", fontSize: "var(--fs-lead)", lineHeight: "var(--lh-snug)", margin: "1.25rem auto 0", maxWidth: "27.5rem" }}>
+                Tell us about your business. You'll hear back from the person who will build your site — usually the same day.
+              </p>
+              <div className="cta-btns" style={{ display: "flex", gap: ".75rem", justifyContent: "center", marginTop: "1.875rem", flexWrap: "wrap" }}>
+                <a className="btn btn-primary" href="mailto:st8ionzero@gmail.com?subject=Quote%20request%20%E2%80%94%20St8tionZero&body=Hi%20St8tionZero%2C%0A%0AHere%27s%20a%20bit%20about%20my%20business%3A%0A%0A-%20Business%20name%3A%0A-%20What%20I%20need%20(website%20%2F%20SEO%20%2F%20socials)%3A%0A-%20Website%20or%20socials%20(if%20any)%3A%0A%0AThanks%21" style={{ fontSize: "var(--fs-body-lg)", padding: ".9375rem 1.75rem" }}>Get my quote <i className="ph-bold ph-arrow-up-right arrow" /></a>
+                <a className="btn" href="https://wa.me/27648052749?text=Hi%20St8tionZero%2C%20I%27d%20like%20to%20chat%20about%20getting%20my%20business%20online." target="_blank" rel="noopener" style={{ fontSize: "var(--fs-body-lg)", padding: ".9375rem 1.75rem", background: "var(--ink)", color: "#fff" }}>WhatsApp us <i className="ph-fill ph-whatsapp-logo" /></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* dark footer */}
+      <footer className="foot">
+        <div className="wrap" style={{ paddingTop: "4rem", paddingBottom: "2.25rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr", gap: "2.5rem" }} className="foot-grid">
+            <div>
+              <Wordmark size={1.375} light />
+              <p style={{ color: "rgba(255,255,255,.6)", fontSize: "var(--fs-sm)", lineHeight: "var(--lh-body)", marginTop: "1.125rem", maxWidth: "17.5rem" }}>
+                The digital basics every SA business needs to actually compete out here.
+              </p>
+              <div style={{ display: "flex", gap: ".875rem", marginTop: "1.25rem", color: "rgba(255,255,255,.7)", fontSize: "1.375rem" }}>
+                <a href="https://wa.me/27648052749" target="_blank" rel="noopener" style={{ color: "inherit" }}><i className="ph-fill ph-whatsapp-logo foot-soc" /></a><a href="mailto:st8ionzero@gmail.com" style={{ color: "inherit" }}><i className="ph-fill ph-envelope-simple foot-soc" /></a>
+              </div>
+            </div>
+            {cols.map((c) => (
+              <div key={c.h}>
+                <div style={{ fontSize: "var(--fs-eyebrow)", letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(255,255,255,.45)", marginBottom: "1rem" }}>{c.h}</div>
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: ".6875rem" }}>
+                  {c.links.map((l) => isObj(l)
+                    ? <li key={l.label}><a className="foot-link" href={l.href} target={l.href.startsWith("http") ? "_blank" : undefined} rel={l.href.startsWith("http") ? "noopener" : undefined} style={{ color: "rgba(255,255,255,.78)", textDecoration: "none", fontSize: "var(--fs-sm)" }}>{l.label}</a></li>
+                    : <li key={l}><a className="foot-link" href="#" style={{ color: "rgba(255,255,255,.78)", textDecoration: "none", fontSize: "var(--fs-sm)" }}>{l}</a></li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: "3.5rem", overflow: "hidden" }}>
+            <div className="foot-mega">st8tionzero</div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,.12)", marginTop: "1.5rem", paddingTop: "1.375rem", color: "rgba(255,255,255,.5)", fontSize: "var(--fs-caption)", flexWrap: "wrap", gap: ".75rem" }}>
+            <span>© 2026 St8tionZero. Made in South Africa.</span>
+            <span style={{ display: "flex", gap: "1.5rem" }}><a className="foot-link" href="#" style={{ color: "inherit", textDecoration: "none" }}>Privacy</a><a className="foot-link" href="#" style={{ color: "inherit", textDecoration: "none" }}>Terms</a></span>
+          </div>
+        </div>
+      </footer>
+    </React.Fragment>
+  );
+}
+window.Footer = Footer;
+  </script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    function App() {
+      const [theme, setTheme] = useState(() => localStorage.getItem("sz-theme") || "light");
+      useEffect(() => {
+        const root = document.documentElement;
+        root.setAttribute("data-theme", theme);
+        root.setAttribute("data-backdrop", "soft");
+        root.setAttribute("data-motion", "balanced");
+        localStorage.setItem("sz-theme", theme);
+      }, [theme]);
+      useEffect(() => {
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+        }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+        document.querySelectorAll(".io").forEach((el) => io.observe(el));
+        return () => io.disconnect();
+      });
+      return (
+        <React.Fragment>
+          <Nav theme={theme} setTheme={setTheme} />
+          <Hero />
+          <Services />
+          <About />
+          <WhyUs />
+          <Faq />
+          <Footer />
+        </React.Fragment>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
