@@ -1252,7 +1252,7 @@ window.Footer = Footer;
     const { useState, useEffect } = React;
 
     function App() {
-      const [theme, setTheme] = useState(() => localStorage.getItem("sz-theme") || "light");
+      const [theme, setTheme] = useState(() => localStorage.getItem("sz-theme") || "dark");
 
       useEffect(() => {
         const root = document.documentElement;

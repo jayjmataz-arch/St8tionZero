@@ -10,7 +10,7 @@ import Faq from '@/components/Faq'
 import Footer from '@/components/Footer'
 
 export default function Home() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
 
   useEffect(() => {
     const saved = localStorage.getItem('sz-theme') as 'light' | 'dark' | null
